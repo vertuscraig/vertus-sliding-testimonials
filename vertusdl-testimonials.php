@@ -235,13 +235,9 @@ function shorten_testimonial( $string, $max_chars = 2000, $append = "\xC2\xA0…
 
 
 function vertusdl_testimonials_styles_scripts () {
-
-	wp_deregister_script('jquery');
-	   wp_register_script('jquery', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js", false, null);
-	   wp_enqueue_script('jquery');
+	
 	wp_enqueue_style( 'vertusdl_testimonials_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
-	wp_enqueue_script( 'vertusdl_testimonials_frontend_js', plugins_url('/js/jquery.cycle2.min.js', __FILE__, array('jquery'), '', true) );
-	//wp_enqueue_script( 'vertusdl_testimonials_backend_js', plugins_url( 'vertusdl-testimonials/js/scripts.js', 'array('jquery')', '', true ) );
+	wp_enqueue_style( 'css_gallery', plugins_url( 'vertusdl-testimonials/css/gallery.prefixed.css' ) );
 }
 add_action ( 'wp_enqueue_scripts', 'vertusdl_testimonials_styles_scripts' );
 
