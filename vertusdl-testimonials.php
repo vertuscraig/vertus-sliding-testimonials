@@ -29,11 +29,29 @@ $options = array();
 require ( 'inc/post_type_meta.php' );
 
 
+
+
 /************************************************
 *
-* Create Settings Page in Admin using add_submenu_page
+* Create options and default settings in database
 *
 ************************************************/
+
+function vertusdl_options_init() {
+	$new_options = array(
+		'widget_style_type' => 'style1',
+		'use_gravatar' => 'yes',
+		//'testimonials_truncate' => 300,
+		//'widget_height' => 400,
+	);
+
+	add_option( 'vertusdl_testimonial_options', $new_options );
+
+}
+add_action( 'init', 'vertusdl_options_init' );
+
+
+
 
 function vertusdl_testimonials_admin_add_page () {
 
@@ -50,17 +68,25 @@ add_action( 'admin_menu', 'vertusdl_testimonials_admin_add_page' );
 
 
 
-function vertusdl_testimonials_options_page () { 
-//Default Option Values 
 
-//$wp_vertus_style_type = 'style1';
-$wp_vertus_use_gravatar = 'yes';
+/************************************************
+*
+* Create Settings Page in Admin using add_submenu_page
+*
+************************************************/
+
+
+
+
+function vertusdl_testimonials_options_page () { 
 
 	if ( !current_user_can ( 'manage_options' ) ) {
 
 		wp_die( 'You do not have sufficient permissions to access this page.' );
 
 	}
+
+	global $options;
 
 	if ( isset( $_POST['vertusdl_form_submitted'] ) ) {
 
@@ -71,28 +97,20 @@ $wp_vertus_use_gravatar = 'yes';
 		if ( $hidden_field == 'Y') {
 
 
-			$vertusdl_style_type = $_POST['vertusdl_style_type'];
-			$vertusdl_use_gravatar = $_POST['vertusdl_use_gravatar'];
+			$options['widget_style_type'] = $_POST['widget_style_type'];
+			$options['use_gravatar'] = $_POST['use_gravatar'];
 
-			$options['vertusdl_style_type'] = $vertusdl_style_type;
-			$options['vertusdl_use_gravatar'] = $vertusdl_use_gravatar;
-
-			update_option( 'vertusdl_testimonials', $options );
+			update_option( 'vertusdl_testimonial_options', $options );
 		}
 	}
 
-$options = get_option( 'vertusdl_testimonials' );
+	$options = get_option('vertusdl_testimonial_options');
 
-	if ( $options != '' ) {
+	$widget_style_type = $options['widget_style_type'];
+	$use_gravatar = $options['use_gravatar'];
 
-		$vertusdl_style_type = $options['vertusdl_style_type'];
-		$vertusdl_use_gravatar  = $options['vertusdl_use_gravatar'];
-
-	}
-
-
-	echo $vertusdl_style_type;
-	echo $vertusdl_use_gravatar;
+	echo $widget_style_type;
+	echo $use_gravatar;
 
 	require ( 'inc/options-wrapper.php' );
 }
@@ -110,7 +128,7 @@ class Vertusdl_Testimonials_Widget extends WP_Widget {
 
 	function vertusdl_testimonials_widget() {
 		// Instantiate the parent object
-		parent::__construct( false, 'Vertus Sliding Testimonial Widget' );
+		parent::__construct( false, 'A Sliding Testimonial Widget', array('description' => __('A sliding testimonial widget from Vertus Digital')));
 	}
 
 	function widget( $args, $instance ) {
@@ -121,11 +139,7 @@ class Vertusdl_Testimonials_Widget extends WP_Widget {
 		$num_testimonials = $instance['num_testimonials'];
 		$slide_testimonials = $instance['slide_testimonials'];
 		$truncate_text = $instance['truncate_text'];
-
-		$options = get_option( 'vertusdl_testimonials' );
-
-		$vertusdl_style_type = $options['vertusdl_style_type'];
-		$vertusdl_use_gravatar  = $options['vertusdl_use_gravatar'];
+		$widget_height = $instance['widget_height'];
 
 		require ('inc/widget/front-end.php');
 	}
@@ -138,26 +152,29 @@ class Vertusdl_Testimonials_Widget extends WP_Widget {
 		$instance['num_testimonials'] = strip_tags($new_instance['num_testimonials']);
 		$instance['slide_testimonials'] = strip_tags($new_instance['slide_testimonials']);
 		$instance['truncate_text'] = strip_tags($new_instance['truncate_text']);
-
+		$instance['widget_height'] = strip_tags($new_instance['widget_height']);
 		return $instance;
 	}
 
 	function form( $instance ) {
+		$defaults = array(
+            'title' => __('Enter Title Here'),
+            'num_testimonials' => '2',
+            'slide_testimonials' => '1',
+            'truncate_text' => '300',
+            'widget_height' => '400'
+        );
 
-		global $truncate_text;
+        $instance = wp_parse_args( (array) $instance, $defaults);
+		
 		// Output admin widget options form
 
 		$title = esc_attr( $instance['title']);
 		$num_testimonials = esc_attr( $instance['num_testimonials']);
 		$slide_testimonials = esc_attr( $instance['slide_testimonials']);
 		$truncate_text = esc_attr( $instance['truncate_text']);
+		$widget_height = esc_attr( $instance['widget_height']);
 
-		update_option( 'vertusdl_testimonials_truncate', $truncate_text );
-
-		$options = get_option( 'vertusdl_testimonials' );
-
-		$vertusdl_style_type = $options['vertusdl_style_type'];
-		$vertusdl_use_gravatar  = $options['vertusdl_use_gravatar'];
 
 		require ('inc/widget/widget-fields.php');
 	}
@@ -181,7 +198,8 @@ add_action( 'widgets_init', 'vertusdl_testimonials_register_widget' );
 function shorten_testimonial( $string, $max_chars = 2000, $append = "\xC2\xA0…" )
 {
 
-	$truncate_text = get_option( 'vertusdl_testimonials_truncate' );
+	$truncate_text_option = get_option('widget_vertusdl_testimonials_widget');
+    $truncate_text = $truncate_text_option[2]['truncate_text'];
 
 	if ( $truncate_text != '' ) {
 		$max_chars = $truncate_text;
@@ -235,9 +253,23 @@ function shorten_testimonial( $string, $max_chars = 2000, $append = "\xC2\xA0…
 
 
 function vertusdl_testimonials_styles_scripts () {
-	
+
 	wp_enqueue_style( 'vertusdl_testimonials_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
-	wp_enqueue_style( 'css_gallery', plugins_url( 'vertusdl-testimonials/css/gallery.prefixed.css' ) );
+	wp_enqueue_style( 'css_gallery', plugins_url( 'vertusdl-testimonials/css/gallery.build.css' ) );
+
+	//Load the correct style sheet based on style type
+
+	$options = get_option('vertusdl_testimonial_options');
+	$widget_style_type = $options['widget_style_type'];
+
+	if ( $widget_style_type == 'style1' ) {
+		wp_enqueue_style( 'css_gallery_theme', plugins_url( 'vertusdl-testimonials/css/gallery.theme-1.php' ) );
+	}
+	elseif ( $widget_style_type == 'style2' ) {
+		wp_enqueue_style( 'css_gallery_theme', plugins_url( 'vertusdl-testimonials/css/gallery.theme-2.php' ) );
+	}
+	
+
 }
 add_action ( 'wp_enqueue_scripts', 'vertusdl_testimonials_styles_scripts' );
 

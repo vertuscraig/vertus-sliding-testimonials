@@ -3,8 +3,6 @@
 	echo $before_widget;
 	echo $before_title . $title . $after_title;	
 
-
-
 ?>
 
 <div class="gallery autoplay items-<?php echo $num_testimonials ?>">
@@ -13,7 +11,10 @@
 
     	<div id="item-<?php echo $i ?>" class="control-operator"></div>
 		
-	<?php } ?>
+	<?php } 
+
+	?>
+
 
 	<?php
 

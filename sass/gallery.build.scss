@@ -1,0 +1,5 @@
+@import "gallery";
+
+@for $i from 2 through 25 {
+  @include gallery($i);
+}

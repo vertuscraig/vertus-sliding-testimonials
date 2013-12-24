@@ -1,3 +1,17 @@
+<?php
+  
+  $absolute_path = explode('wp-content', $_SERVER['SCRIPT_FILENAME']);
+  $wp_load = $absolute_path[0] . 'wp-load.php';
+  require_once($wp_load);
+
+  $css_options = get_option('widget_vertusdl_testimonials_widget');
+  $widget_height = $css_options[2]['widget_height'];
+
+  header('Content-type: text/css');
+  header('Cache-control: must-revalidate');
+
+?>
+
 .gallery .control-operator:target ~ .controls .control-button {
   color: #ccc;
   color: rgba(255, 255, 255, 0.4);
@@ -664,7 +678,7 @@
 }
 
 .gallery .item {
-  height: 400px;
+  height: <?php echo $widget_height ?>px;
   overflow: hidden;
   text-align: center;
   background: #eee;
