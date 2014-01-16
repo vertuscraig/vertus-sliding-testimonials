@@ -1,0 +1,5 @@
+13-1-14 ----
+
+Started renaming and structuring files and folders need to move everything from inc to includes and add folders
+
+rename vestusdl namespace to vdtestim
