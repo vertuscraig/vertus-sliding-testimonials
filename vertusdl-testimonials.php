@@ -167,7 +167,7 @@ class Vdtestim_Widget extends WP_Widget {
 		$defaults = array(
             'title' => __('Enter Title Here'),
             'num_testimonials' => '2',
-            'slide_testimonials' => '1',
+            'slide_testimonials' => 'yes',
             'truncate_text' => '300',
             'widget_height' => '400'
         );
@@ -194,6 +194,9 @@ function vdtestim_register_widget() {
 add_action( 'widgets_init', 'vdtestim_register_widget' );
 
 
+// Just for viewing widget options
+//$variables = get_option('widget_vdtestim_widget');
+//var_dump($variables);
 
 
 /***************************************
@@ -205,8 +208,8 @@ add_action( 'widgets_init', 'vdtestim_register_widget' );
 function vdtestim_shorten_testimonial( $string, $max_chars = 2000, $append = "\xC2\xA0…" )
 {
 
-	$truncate_text_option = get_option('widget_vdtestim_widget');
-    $truncate_text = $truncate_text_option[2]['truncate_text'];
+	$widget_options = get_option('widget_vdtestim_widget');
+    $truncate_text = $widget_options[2]['truncate_text'];
 
 	if ( $truncate_text != '' ) {
 		$max_chars = $truncate_text;
@@ -252,16 +255,26 @@ function vdtestim_shorten_testimonial( $string, $max_chars = 2000, $append = "\x
     return $short . $append;
 }
 
-/***************************************
+/*************************************************************************
  * 
- * Enqueue Front End Styles.
+ * Enqueues Front End Styles, Scripts, Loads PHP Variables into slider JS .
  *
- ***************************************/
+ *************************************************************************/
 
 
 function vdtestim_styles_scripts () {
 
+	$options = get_option('vdtestim_options');
+
 	wp_enqueue_style( 'vdtestim_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
+	wp_enqueue_script( 'vdtestim_slider_js', plugins_url( 'vertusdl-testimonials/js/slider.js' ), array('jquery') );
+
+	wp_localize_script( 'vdtestim_slider_js', 'vdtestim_php_vars', array(
+			'slideDur' => $options['slider_display_duration'] * 1000,
+			'fadeDur' => $options['slider_fade_duration'] * 1000,
+		)
+	);
+
 
 	//Load the correct style sheet based on style type
 

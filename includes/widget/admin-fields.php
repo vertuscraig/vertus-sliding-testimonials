@@ -12,7 +12,7 @@
 	?>
 </p>
 <p>
-  <label>How many of your testimonials would you you like to display? Max 25.</label> 
+  <label>How many of your testimonials would you you like to display?</label> 
   <input size="4" name="<?php echo $this->get_field_name('num_testimonials'); ?>" type="text" value="<?php echo $num_testimonials; ?>" />
 </p>
 
@@ -28,6 +28,9 @@
 
 <p>
   <label>Slide Testimonials?</label> 
-  <input type="checkbox" name="<?php echo $this->get_field_name('slide_testimonials'); ?>" value="<?php checked( $slide_testimonials, 1 ); ?>" />
+  <select name="<?php echo $this->get_field_name('slide_testimonials'); ?>">
+                  <option value="yes" <?php selected( $slide_testimonials, 'yes' ); ?> >Yes</option>
+                  <option value="no" <?php selected( $slide_testimonials, 'no' ); ?> >No</option>
+  </select>
 </p>
 

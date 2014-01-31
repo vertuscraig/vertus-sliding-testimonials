@@ -1,0 +1,52 @@
+.testimonial {
+
+	blockquote {
+	  //background: #f9f9f9;
+	  //border-left: 5px solid #ccc;
+	  //padding: 10px;
+	  margin: 0 0 20px 0;
+	  quotes: "\201C""\201D"; //"\2018""\2019";
+	}
+
+	blockquote:before {
+	  color: #ccc;
+	  content: open-quote;
+	  font-size: 4em;
+	  line-height: 0.1em;
+	  margin-right: 0.25em;
+	  vertical-align: -0.4em;
+	}
+	blockquote p {
+	  display: inline;
+	  font-size: 1em;
+	}
+		
+	.testimonials-before {
+		font-size: 0.9em;
+		text-transform: uppercase;
+		color: orange;
+	}
+
+	.testimonials-name {
+		font-size: 1em
+
+	}
+
+	.testimonials-company {
+		font-size: 1em;
+	}
+
+	img {
+		float: right;
+		margin-right: 20px;
+	}
+}
+
+.no-slide {
+	border-bottom: 5px solid #ccc;
+	margin-top: 20px;
+
+	&.last {
+	border-bottom: none;
+	}
+}

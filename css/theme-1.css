@@ -1,0 +1,39 @@
+/* line 3, sass/theme-1.scss */
+.testimonial blockquote {
+  margin: 0 0 20px 0;
+  quotes: "\201C" "\201D"; }
+/* line 11, sass/theme-1.scss */
+.testimonial blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em; }
+/* line 19, sass/theme-1.scss */
+.testimonial blockquote p {
+  display: inline;
+  font-size: 1em; }
+/* line 24, sass/theme-1.scss */
+.testimonial .testimonials-before {
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: orange; }
+/* line 30, sass/theme-1.scss */
+.testimonial .testimonials-name {
+  font-size: 1em; }
+/* line 35, sass/theme-1.scss */
+.testimonial .testimonials-company {
+  font-size: 1em; }
+/* line 39, sass/theme-1.scss */
+.testimonial img {
+  float: right;
+  margin-right: 20px; }
+
+/* line 45, sass/theme-1.scss */
+.no-slide {
+  border-bottom: 5px solid #ccc;
+  margin-top: 20px; }
+  /* line 49, sass/theme-1.scss */
+  .no-slide.last {
+    border-bottom: none; }

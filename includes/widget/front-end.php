@@ -2,12 +2,18 @@
 
 	echo $before_widget;
 	echo $before_title . $title . $after_title;	
-
+	$widget_variables = get_option('widget_vdtestim_widget');
+	$slide_testimonials = $widget_variables[2]['slide_testimonials'];
 ?>
 
-<div class="testimonials">
+
+
+<div id="testimonials" class="<?php if ( $slide_testimonials === 'yes' ) echo "slider" ?> testimonials" style="height: <?php echo $widget_height ?>px;">
+
+
 
 	<?php
+
 
 		// WP_Query arguments
 		$args = array (
@@ -19,11 +25,14 @@
 		$query = new WP_Query( $args );
 
 		// The Loop
+		$i = 0;
 		if ( $query->have_posts() ) {
 			while ( $query->have_posts() ) {
-				$query->the_post(); ?>
+				$query->the_post();
+
+				?>
 				
-				<figure class="item">
+				<div class="testimonial <?php if ( $slide_testimonials == 'yes' ) { echo 'slide'; } else { echo 'no-slide'; } if ($i === $num_testimonials -1 ) { echo ' last'; } ?> ">
 
 					<?php
 
@@ -42,18 +51,20 @@
 
 					?>
 					
-					<p><?php echo vdtestim_shorten_testimonial( $vdtestim_text ); ?>
-					<a href="<?php echo get_permalink(); ?>">Read More</a></p>
+					<blockquote><p><?php echo vdtestim_shorten_testimonial( $vdtestim_text ); ?>
+					<a href="<?php echo get_permalink(); ?>">Read More</a></p></blockquote>
 
 					<p>
-						<span="testimonials-before">by: </span><span="testimonials-name"><?php the_title(); ?></span><br />
-						<span="testimonials-before">from: </span><a href="<?php echo $vdtestim_website; ?>" target="_blank" rel="nofollow" title="Link to <?php echo $vdtestim_company;?> Website."><span"testimonials-company"><?php echo $vdtestim_company; ?></span></a>
-					</p>
-					<img src="<?php echo $grav_url; ?>" alt="" height="50" width="50"/>
+						<img src="<?php echo $grav_url; ?>" alt="" height="50" width="50"/>
+						<span class="testimonials-before">by: </span><span class="testimonials-name"><?php the_title(); ?></span><br />
+						<span class="testimonials-before">from: </span><a href="<?php echo $vdtestim_website; ?>" target="_blank" rel="nofollow" title="Link to <?php echo $vdtestim_company;?> Website."><span class="testimonials-company"><?php echo $vdtestim_company; ?></span></a>
+					</p>	
 
-				</figure>
+				</div>
 
 				<?php
+
+				$i++;
 			}
 		} else {
 			// no posts found
@@ -62,6 +73,12 @@
 		// Restore original Post Data
 		wp_reset_postdata();
 	?>
+
+	<div class="slider_controls">
+        <div class="prev testimonial_slide" data-target="prev" >&lsaquo;</div>
+        <div class="next testimonial_slide" data-target="next" >&rsaquo;</div>
+        <ul class="pager_list"></ul>
+    </div>
 
 </div>
 
