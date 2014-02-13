@@ -3,96 +3,46 @@
 	<div id="icon-options-general" class="icon32"></div>
 	<h2>Vertus Sliding Testimonials Settings Page</h2>
 	
-	<div id="poststuff">
-	
-		<div id="post-body" class="metabox-holder columns-2">
+
+		<?php settings_errors(); ?>
+
+		<?php
+		if( isset( $_GET[ 'tab' ] ) ) {
+		    $active_tab = $_GET[ 'tab' ];
+		} // end if
+		$active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'global_options';
+		?>
+
+		<h2 class="nav-tab-wrapper">
+		    <a href="?post_type=testimonials&page=testimonial_settings&tab=global_options" class="nav-tab <?php echo $active_tab == 'global_options' ? 'nav-tab-active' : ''; ?>">Global Options</a>
+		    <a href="?post_type=testimonials&page=testimonial_settings&tab=style_options" class="nav-tab <?php echo $active_tab == 'style_options' ? 'nav-tab-active' : ''; ?>">Style Options</a>
+		</h2>
+
+		<form method="POST" name="vdtestim_options" action="options.php">
+
+		<input type="hidden" name="vdtestim_form_submitted" value="Y">
+
 		
-			<!-- main content -->
-			<div id="post-body-content">
-				
-				<div class="meta-box-sortables ui-sortable">
-					
-					<div class="postbox">
-					
-						<h3><span>Settings</span></h3>
-						<div class="inside">
 
-							<form method="post" name="vdtestim_options" action="">
+		<?php 
 
-								<input type="hidden" name="vdtestim_form_submitted" value="Y">
-
-								<fieldset>
-
-									<h3>Choose The Style</h3>
-
-									<legend class="screen-reader-text"><span>input type="radio"</span></legend>
-
-									<label title='choose style 1'>
-										<input type="radio" name="widget_style_type" <?php checked( $options['widget_style_type'], 'style1' ); ?> value="style1" /> <span>Choose Style 1 (Default)</span>
-									</label>
-
-									<br />
-
-									<label title='choose style 2'>
-										<input type="radio" name="widget_style_type" <?php checked( $options['widget_style_type'], 'style2' ); ?> value="style2" /> <span>Choose Style 2</span>
-									</label>
-
-								</fieldset>
-
-								<h3>Use Gravatar Image In Profile If No Profile Images Is Uploaded</h3>
-
-								<select name="use_gravatar">
-									<option value="yes" <?php selected( $options['use_gravatar'], 'yes' ); ?> >Yes</option>
-									<option value="no" <?php selected( $options['use_gravatar'], 'no' ); ?> >No</option>
-								</select>
-
-								<h3>Widget Settings</h3>
-
-								<label title='Slider Display Duration'>
-									<input type="text" value="<?php echo $options['slider_display_duration']; ?>" class="small-text" name="slider_display_duration"/><span>Seconds <br />Set Slider Display Duration</span>
-								</label>
-
-								<br />
-								<br />
-
-								<label title='Slider Fade Duration'>
-									<input type="text" value="<?php echo $options['slider_fade_duration']; ?>" class="small-text" name="slider_fade_duration"/><span>Seconds <br />Set Slider Fade Duration</span>
-								</label>
-
-								<p><input class="button-primary" type="submit" name="submit_style" value="Submit" /></p>
-
-							</form>
-						</div> <!-- .inside -->
-					
-					</div> <!-- .postbox -->
+		if ( $active_tab == 'global_options') { 
+			settings_fields('vdtestim_global_settings');
+			do_settings_sections('vdtestim_global_settings');
+		} else {
+			settings_fields( 'vdtestim_style_settings' );
+			do_settings_sections( 'vdtestim_style_settings' );
+		}
+		?>
 
 
-					
-				</div> <!-- .meta-box-sortables .ui-sortable -->
-				
-			</div> <!-- post-body-content -->
-			
-			<!-- sidebar -->
-			<div id="postbox-container-1" class="postbox-container">
-				
-				<div class="meta-box-sortables">
-					
-					<div class="postbox">
-					
-						<h3><span>Sidebar Content Header</span></h3>
-						<div class="inside">
-							Content space
-						</div> <!-- .inside -->
-						
-					</div> <!-- .postbox -->
-					
-				</div> <!-- .meta-box-sortables -->
-				
-			</div> <!-- #postbox-container-1 .postbox-container -->
-			
-		</div> <!-- #post-body .metabox-holder .columns-2 -->
-		
-		<br class="clear">
-	</div> <!-- #poststuff -->
+
+		<p>
+			<input class="button-primary" type="submit" name="vdtestim_global_settings[submit]" value="<?php esc_attr_e('Save Settings', 'vdtestim' ); ?>" />
+
+			<input class="button-secondary" type="submit" name="vdtestim_global_settings[reset]" value="<?php esc_attr_e('Reset Defaults', 'vdtestim'); ?>" />
+		</p>
+
+		</form>
 	
 </div> <!-- .wrap -->

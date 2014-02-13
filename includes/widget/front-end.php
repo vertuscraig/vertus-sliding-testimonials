@@ -1,14 +1,18 @@
-<?php 		
+<?php 
+
+	$vdtestim_options = get_option( 'vdtestim_global_settings' );
+	$default_gravatar_url = $vdtestim_options['default_gravatar_url'];
 
 	echo $before_widget;
 	echo $before_title . $title . $after_title;	
-	$widget_variables = get_option('widget_vdtestim_widget');
-	$slide_testimonials = $widget_variables[2]['slide_testimonials'];
+	$widget_variables = get_option( 'vdtestim_style_settings' );
+	$slide_testimonials = $widget_variables['slide'];
+	$num_testimonials = $widget_variables['num_testimonials'];
 ?>
 
 
 
-<div id="testimonials" class="<?php if ( $slide_testimonials === 'yes' ) echo "slider" ?> testimonials" style="height: <?php echo $widget_height ?>px;">
+<div id="testimonials" class="<?php if ( $slide_testimonials === 'yes' ) echo "slider" ?> testimonials" >
 
 
 
@@ -45,11 +49,13 @@
 					$vdtestim_text     = wpautop( $vdtestim_wpautop );
 					$size = 50;
 					$default = plugins_url( 'vertusdl-testimonials/images/defaultavatar-green.png' );
-					$grav_url = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $vdtestim_email ) ) ) . "?d=" . urlencode( 'http://www.vertusdigital.co.uk/wp-content/uploads/2013/12/defaultavatar-green.png' ) . "&s=" . $size;
+					$grav_url = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $vdtestim_email ) ) ) . "?d=" . urlencode( $default_gravatar_url ) . "&s=" . $size;
 
 					// To Do - Change gravatar default back to pluginurl in production!!!!!!!!
 
 					?>
+
+
 					
 					<blockquote><p><?php echo vdtestim_shorten_testimonial( $vdtestim_text ); ?>
 					<a href="<?php echo get_permalink(); ?>">Read More</a></p></blockquote>

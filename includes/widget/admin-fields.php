@@ -3,7 +3,7 @@
   <input class="widefat" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
 </p>
 
-<p>
+<!-- <p>
 	Total Testimonials:&nbsp; 
 	<?php 
 		$post_count = wp_count_posts( 'testimonials' );
@@ -33,4 +33,4 @@
                   <option value="no" <?php selected( $slide_testimonials, 'no' ); ?> >No</option>
   </select>
 </p>
-
+ -->

@@ -1,0 +1,1 @@
+jQuery(document).ready(function(e){var t=e(".slide").height();e(".slider").height(t+30);e(window).resize(function(){var t=e(".slide").height();e(".slider").height(t+30)})});

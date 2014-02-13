@@ -18,60 +18,16 @@
 ***********************/
 
 define( 'vdtestim_plugin_path', plugin_dir_path( __FILE__ ) );
- 
 
-
-
-/**********************
-*
-* Get & Save Default Options
-*
-***********************/
-
-function vdtestim_get_default_options() {
-	$default_options = array(
+global $default_options; 
+$default_options = array(
+		'widget_style_type' => 'style1',
 		'use_gravatar' => 'yes',
-		'default_gravatar_url' => plugins_url() . '/vertusdl-testimonials/images/defaultavatar-green.png',
+		'default_gravatar_url' => vdtestim_plugin_path . 'images/defaultavatar-green.png',
 		'slider_display_duration' => 15,
 		'slider_fade_duration' => 2
-			
-	);
-	return $default_options;
-}
-
-function vdtestim_default_style_options() {
-	$default_options = array(
-		'style' => 'style1',
-		'num_testimonials' => '4',
-		'slide' => 'yes',
-		'truncate_text' => '400',
-		'height' => '400',
-		'width' => '500'
-	);
-	return $default_options;
-}
-
-function vdtestim_options_init() {
-     $vdtestim_options = get_option( 'vdtestim_global_settings' );
-     $vdtestim_style_options = get_option( 'vdtestim_style_settings' );
-	 
-	 //Check for Global Options
-     if ( false === $vdtestim_options ) {
-		  // If not, we'll save our default options
-          $vdtestim_options = vdtestim_get_default_options();
-		  add_option( 'vdtestim_global_settings', $vdtestim_options );
-     }
-     //Check for Style Options
-     if ( false === $vdtestim_style_options ) {
-          $vdtestim_style_options = vdtestim_default_style_options();
-		  add_option( 'vdtestim_style_settings', $vdtestim_style_options );
-     }
-	 
-}
-add_action( 'init', 'vdtestim_options_init' );
-
-
-
+		
+		);
 
 
 
@@ -88,12 +44,28 @@ require ( vdtestim_plugin_path . 'includes/admin/post_type_meta.php' );
 
 /************************************************
 *
-* Creates The Settings Page & Options
+* Create options and default settings in database
 *
 ************************************************/
 
-// Import our setting
-require ( vdtestim_plugin_path . 'includes/admin/settings.php' );
+
+ 
+function vdtestim_options_init() {
+
+	global $default_options; 
+
+	add_option( 'vdtestim_options', $default_options );
+
+}
+add_action( 'init', 'vdtestim_options_init' );
+
+
+
+/************************************************
+*
+* Create Settings Page in Admin using add_submenu_page
+*
+************************************************/
 
 function vdtestim_admin_add_page () {
 
@@ -111,15 +83,52 @@ add_action( 'admin_menu', 'vdtestim_admin_add_page' );
 
 
 
-
-
 function vdtestim_options_page () { 
 
-	require ( vdtestim_plugin_path . 'includes/admin/options-wrapper.php' );
-	
-}
+	$options = get_option( 'vdtestim_options' );
 
-//var_dump($vdtestim_options);
+	if ( !current_user_can ( 'manage_options' ) ) {
+
+		wp_die( 'You do not have sufficient permissions to access this page.' );
+
+	}
+
+	global $options;
+
+	if ( isset( $_POST['vdtestim_form_submitted'] ) ) {
+
+		$hidden_field = esc_html( $_POST['vdtestim_form_submitted'] );
+
+		// Pass & save the information in the database
+
+		if ( $hidden_field == 'Y') {
+
+			$options['widget_style_type'] = $_POST['widget_style_type'];
+			$options['use_gravatar'] = $_POST['use_gravatar'];
+			$options['default_gravatar_url'] = $_POST['default_gravatar_url'];
+			$options['slider_display_duration'] = $_POST['slider_display_duration'];
+			$options['slider_fade_duration'] = $_POST['slider_fade_duration'];
+
+			update_option( 'vdtestim_options', $options );
+		}
+	}
+
+	$options = get_option('vdtestim_options');
+
+	$widget_style_type = $options['widget_style_type'];
+	$use_gravatar = $options['use_gravatar'];
+	$default_gravatar_url = $options['default_gravatar_url'];
+	$slider_display_duration = $options['slider_display_duration'];
+	$slider_fade_duration = $options['slider_fade_duration'];
+
+	echo $widget_style_type;
+	echo $use_gravatar;
+	echo $default_gravatar_url;
+	echo $slider_display_duration;
+	echo $slider_fade_duration;
+
+	require ( vdtestim_plugin_path . 'includes/admin/options-wrapper.php' );
+}
 
 /*******************************
 *
@@ -147,6 +156,60 @@ function replace_uploader_text($translated_text, $text, $domain) {
     return $translated_text;  
 }
 
+/*******************************
+*
+* Admin Options Form Validation
+*
+*******************************/
+
+
+
+function vdtestim_options_validate( $input ) {
+	global $default_options; 
+	$valid_input = $default_options;
+	
+	$options = get_option('vdtestim_options');
+	
+	$submit = ! empty($input['submit']);
+	$reset = ! empty($input['reset']);
+	$delete_gravatar = ! empty($input['delete_gravatar']);
+	
+	if ( $submit ) {
+		if ( $options['default_gravatar_url'] != $input['gravatar']  && $options['default_gravatar_url'] != '' )
+			vdtestim_delete_image( $options['default_gravatar_url'] );
+		
+		$valid_input['default_gravatar_url'] = $input['gravatar'];
+	}
+	elseif ( $reset ) {
+		vdtestim_delete_image( $options['default_gravatar_url'] );
+		$valid_input['default_gravatar_url'] = $default_options['default_gravatar_url'];
+	}
+	elseif ( $delete_gravatar ) {
+		vdtestim_delete_image( $options['default_gravatar_url'] );
+		$valid_input['default_gravatar_url'] = '';
+	}
+	
+	return $valid_input;
+
+	function vdtestim_delete_image( $image_url ) {
+	global $wpdb;
+	
+	// We need to get the image's meta ID..
+	$query = "SELECT ID FROM wp_posts where guid = '" . esc_url($image_url) . "' AND post_type = 'attachment'";  
+	$results = $wpdb -> get_results($query);
+
+	// And delete them (if more than one attachment is in the Library
+	foreach ( $results as $row ) {
+		wp_delete_attachment( $row -> ID );
+	}	
+}
+
+}
+add_action( 'admin_init', 'vdtestim_options_validate' ); 
+
+
+
+
 
 
 
@@ -168,6 +231,10 @@ class Vdtestim_Widget extends WP_Widget {
 		extract($args);
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
+		$num_testimonials = $instance['num_testimonials'];
+		$slide_testimonials = $instance['slide_testimonials'];
+		$truncate_text = $instance['truncate_text'];
+		$widget_height = $instance['widget_height'];
 
 		require ( vdtestim_plugin_path . 'includes/widget/front-end.php');
 	}
@@ -177,12 +244,20 @@ class Vdtestim_Widget extends WP_Widget {
 
 		$instance = $old_instance;
 		$instance['title'] = strip_tags($new_instance['title']);
+		$instance['num_testimonials'] = strip_tags($new_instance['num_testimonials']);
+		$instance['slide_testimonials'] = strip_tags($new_instance['slide_testimonials']);
+		$instance['truncate_text'] = strip_tags($new_instance['truncate_text']);
+		$instance['widget_height'] = strip_tags($new_instance['widget_height']);
 		return $instance;
 	}
 
 	function form( $instance ) {
 		$defaults = array(
-            'title' => __('Enter Title Here')
+            'title' => __('Enter Title Here'),
+            'num_testimonials' => '2',
+            'slide_testimonials' => 'yes',
+            'truncate_text' => '300',
+            'widget_height' => '400'
         );
 
         $instance = wp_parse_args( (array) $instance, $defaults);
@@ -190,6 +265,11 @@ class Vdtestim_Widget extends WP_Widget {
 		// Output admin widget options form
 
 		$title = esc_attr( $instance['title']);
+		$num_testimonials = esc_attr( $instance['num_testimonials']);
+		$slide_testimonials = esc_attr( $instance['slide_testimonials']);
+		$truncate_text = esc_attr( $instance['truncate_text']);
+		$widget_height = esc_attr( $instance['widget_height']);
+
 
 		require ( vdtestim_plugin_path . 'includes/widget/admin-fields.php');
 	}
@@ -202,6 +282,11 @@ function vdtestim_register_widget() {
 add_action( 'widgets_init', 'vdtestim_register_widget' );
 
 
+// Just for viewing widget options
+//$variables = get_option('widget_vdtestim_widget');
+//var_dump($variables);
+
+
 /***************************************
  * 
  * Limit the text on the Testimonials Widget.
@@ -210,8 +295,9 @@ add_action( 'widgets_init', 'vdtestim_register_widget' );
 
 function vdtestim_shorten_testimonial( $string, $max_chars = 2000, $append = "\xC2\xA0…" )
 {
-	$vdtestim_style_options = get_option( 'vdtestim_style_settings' );
-    $truncate_text = $vdtestim_style_options['truncate_text'];
+
+	$widget_options = get_option('widget_vdtestim_widget');
+    $truncate_text = $widget_options[2]['truncate_text'];
 
 	if ( $truncate_text != '' ) {
 		$max_chars = $truncate_text;
@@ -265,15 +351,12 @@ function vdtestim_shorten_testimonial( $string, $max_chars = 2000, $append = "\x
 
 function vdtestim_back_scripts () {
 
-	$vdtestim_style_options = get_option( 'vdtestim_style_settings' );
-	$global_options = get_option('vdtestim_global_settings');
-
 	// Add and remove what is and isn't needed in back end
 
 	//$options = get_option('vdtestim_options');
 
-	wp_register_style( 'vdtestim_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
-	wp_register_script( 'vdtestim_slider_js', plugins_url( 'vertusdl-testimonials/js/slider.js' ), array('jquery') );
+	//wp_enqueue_style( 'vdtestim_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
+	//wp_enqueue_script( 'vdtestim_slider_js', plugins_url( 'vertusdl-testimonials/js/slider.js' ), array('jquery') );
 	wp_register_script( 'vdtestim_scripts_js', plugins_url( 'vertusdl-testimonials/js/scripts.js' ), array('jquery','media-upload','thickbox') );  
   
     if ( 'testimonials_page_testimonial_settings' == get_current_screen() -> id ) {  
@@ -284,31 +367,28 @@ function vdtestim_back_scripts () {
   
         wp_enqueue_script('media-upload');  
         wp_enqueue_script('vdtestim_scripts_js');  
-
-        wp_enqueue_scripts('vdtestim_slider_js');
-        wp_enqueue_style('vdtestim_frontend_css');
-
-        wp_deregister_style('twentytwelve-style' );
-        
-        //Load the correct style sheet based on style type
-
-
-
-        if ( $vdtestim_style_options["style"] == 'style1' ) {
-        	wp_enqueue_style( 'vdtestim_theme', plugins_url( 'vertusdl-testimonials/css/theme-1.css' ) );
-        }
-        elseif ( $vdtestim_style_options['style'] == 'style2' ) {
-        	wp_enqueue_style( 'vdtestim_theme', plugins_url( 'vertusdl-testimonials/css/theme-2.css' ) );
-        }
-
-        wp_localize_script( 'vdtestim_slider_js', 'vdtestim_php_vars', array(
-        		'slideDur' => $global_options['slider_display_duration'] * 1000,
-        		'fadeDur' => $global_options['slider_fade_duration'] * 1000,
-        	)
-        );
-
   
     }  
+
+	//wp_enqueue_script( 'vdtestim_scripts_js', plugins_url( 'vertusdl-testimonials/js/scriptstest.js' ), array('jquery') );
+	//wp_localize_script( 'vdtestim_slider_js', 'vdtestim_php_vars', array(
+	//		'slideDur' => $options['slider_display_duration'] * 1000,
+	//		'fadeDur' => $options['slider_fade_duration'] * 1000,
+	//	)
+	//);
+
+
+	//Load the correct style sheet based on style type
+
+	//$widget_style_type = $options['widget_style_type'];
+
+	//if ( $widget_style_type == 'style1' ) {
+	//	wp_enqueue_style( 'vdtestim_theme', plugins_url( 'vertusdl-testimonials/css/theme-1.css' ) );
+	//}
+	//elseif ( $widget_style_type == 'style2' ) {
+	//	wp_enqueue_style( 'vdtestim_theme', plugins_url( 'vertusdl-testimonials/css/theme-2.css' ) );
+	//}
+	
 
 }
 add_action ( 'admin_enqueue_scripts', 'vdtestim_back_scripts' );
@@ -322,26 +402,21 @@ add_action ( 'admin_enqueue_scripts', 'vdtestim_back_scripts' );
 
 function vdtestim_styles_scripts () {
 
-	$style_options = get_option('vdtestim_style_settings');
-	$global_options = get_option('vdtestim_global_settings');
+	$options = get_option('vdtestim_options');
 
 	wp_enqueue_style( 'vdtestim_frontend_css', plugins_url( 'vertusdl-testimonials/css/vertusdl-testimonials.css' ) );
 	wp_enqueue_script( 'vdtestim_slider_js', plugins_url( 'vertusdl-testimonials/js/slider.js' ), array('jquery') );
-	wp_enqueue_script( 'vdtestim_frontend_js', plugins_url( 'vertusdl-testimonials/js/frontend.js' ), array('jquery') );
-
-
-
 
 	wp_localize_script( 'vdtestim_slider_js', 'vdtestim_php_vars', array(
-			'slideDur' => $global_options['slider_display_duration'] * 1000,
-			'fadeDur' => $global_options['slider_fade_duration'] * 1000,
+			'slideDur' => $options['slider_display_duration'] * 1000,
+			'fadeDur' => $options['slider_fade_duration'] * 1000,
 		)
 	);
 
 
 	//Load the correct style sheet based on style type
 
-	$widget_style_type = $style_options['style'];
+	$widget_style_type = $options['widget_style_type'];
 
 	if ( $widget_style_type == 'style1' ) {
 		wp_enqueue_style( 'vdtestim_theme', plugins_url( 'vertusdl-testimonials/css/theme-1.css' ) );

@@ -35,5 +35,8 @@
   border-bottom: 5px solid #ccc;
   margin-top: 20px; }
   /* line 49, sass/theme-1.scss */
+  .no-slide p {
+    margin-bottom: 30px !important; }
+  /* line 53, sass/theme-1.scss */
   .no-slide.last {
     border-bottom: none; }

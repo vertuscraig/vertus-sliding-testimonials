@@ -1,6 +1,5 @@
 .slider {
 	position: relative;
-	overflow: hidden;
 	
 	.slide {
 		position: absolute;
@@ -51,7 +50,7 @@
 			margin: 0 7px;
 			background: #444;
 			opacity: .5;
-			text-indent: -999px;
+			text-indent: -1998px;
 			border-radius: 999px;
 			cursor: pointer;
 			transition: all 150ms;
